@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI
 from fastmcp import FastMCP
 from starlette.applications import Starlette
@@ -17,15 +16,17 @@ async def get_user(user_id: int):
 async def create_user(name: str):
     return {"message": f"User {name} created"}
 
-# Create MCP server - properly handle FastMCP integration
+# Create MCP server - FastMCP likely returns the server object directly
 def create_mcp_server():
     client = httpx.AsyncClient()
+    # FastMCP.from_fastapi likely returns an ASGI-compatible object directly
     mcp = FastMCP.from_fastapi(
         app, 
-        client  # Specify transport
+        client,
+        transport="http-streamable"
     )
-    # Get the actual ASGI app from FastMCP
-    return mcp.get_asgi_app()
+    # Return the FastMCPOpenAPI object directly - it should be ASGI compatible
+    return mcp
 
 # Alternative approach - create a simple FastAPI app for MCP if the above doesn't work
 def create_simple_mcp_app():
